@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vaquinha BYD</title>
+    <title>Vaquinha BYD - Diego & Natan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -12,46 +12,58 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .progress-fill { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .car-move { transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 30; }
+        .car-move { transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; z-index: 50; }
+        .loading-screen { position: fixed; inset: 0; background: #0f172a; z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; }
+        #header-bg { background-size: cover; background-position: center; transition: background-image 0.8s ease-in-out; }
         .smoothing-active { animation: border-glow 2s infinite alternate; }
         @keyframes border-glow { from { border-color: #e2e8f0; } to { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); } }
-        .loading-screen { position: fixed; inset: 0; background: #f8fafc; z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen pb-12">
 
-    <div id="loading" class="loading-screen">
-        <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-600 mb-4"></div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando BYD Cloud...</p>
+    <!-- Ecrã de Login / Carregamento -->
+    <div id="auth-screen" class="loading-screen">
+        <div id="loader" class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500 mb-4"></div>
+            <p class="text-[10px] font-black uppercase tracking-[0.3em]">A ligar à BYD Cloud...</p>
+        </div>
+        <div id="login-form" class="hidden w-full max-w-xs p-8 bg-white rounded-[2.5rem] text-slate-900 shadow-2xl mx-5">
+            <h2 class="font-black text-2xl mb-6 text-center tracking-tighter italic uppercase">Vaquinha BYD</h2>
+            <div class="space-y-3">
+                <input type="email" id="email" placeholder="E-mail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all">
+                <input type="password" id="password" placeholder="Senha" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all">
+                <button onclick="handleLogin()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-200">Entrar</button>
+            </div>
+        </div>
     </div>
 
     <!-- HEADER COM IMAGEM -->
-    <div id="header-bg" class="bg-slate-900 pt-16 pb-24 px-6 relative transition-all duration-1000 bg-cover bg-center">
-        <div class="absolute inset-0 bg-black/50"></div>
+    <div id="header-bg" class="bg-slate-900 pt-16 pb-24 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 bg-black/60"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-[#F8FAFC] via-transparent to-transparent"></div>
         
         <div class="relative z-10 max-w-xl mx-auto text-white">
-            <div class="flex justify-between items-start">
+            <div class="flex justify-between items-start mb-2">
                 <span class="bg-blue-600 text-[9px] font-black px-2 py-0.5 rounded tracking-widest uppercase">BYD AUTO</span>
                 <label class="cursor-pointer opacity-40 hover:opacity-100 transition-opacity p-2 bg-black/40 rounded-full border border-white/10">
                     <i data-lucide="camera" class="w-4 h-4 text-white"></i>
                     <input type="file" id="bg-upload" class="hidden" accept="image/*">
                 </label>
             </div>
-            <h1 class="text-4xl font-black tracking-tighter uppercase italic leading-none mt-2">Dolphin Mini <span class="text-blue-500 block text-2xl not-italic">Black Edition</span></h1>
+            <h1 class="text-4xl font-black tracking-tighter uppercase italic leading-none">Dolphin Mini <span class="text-blue-500 block text-2xl not-italic font-bold">Black Edition</span></h1>
             <p class="text-slate-100 text-[10px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-2">
-                <i data-lucide="users" class="w-3 h-3"></i> Diego & Natan
+                <i data-lucide="users" class="w-3 h-3 text-white"></i> Diego & Natan
             </p>
         </div>
     </div>
 
     <main class="max-w-xl mx-auto px-5 -mt-12 relative z-20 space-y-6">
         
-        <!-- PAINEL DE VALORES -->
+        <!-- STATUS E PROGRESSO -->
         <div id="stats-card" class="bg-white rounded-[2.5rem] shadow-2xl p-6 border border-white">
             <div class="grid grid-cols-2 gap-4 mb-10">
                 <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total em Caixa</p>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total na Vaquinha</p>
                     <p id="display-total" class="text-3xl font-black text-blue-700">R$ 0,00</p>
                 </div>
                 <div class="text-right">
@@ -60,37 +72,34 @@
                 </div>
             </div>
             
-            <div class="relative h-12 flex items-center px-2">
+            <div class="relative h-12 flex items-center px-1">
                 <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 shadow-inner relative z-10">
-                    <div id="progress-fill" class="progress-fill h-full bg-blue-600 rounded-full" style="width: 0%"></div>
+                    <div id="progress-fill" class="progress-fill h-full bg-blue-600 rounded-full shadow-lg shadow-blue-200" style="width: 0%"></div>
                 </div>
                 
-                <!-- Ícone do Carrinho -->
-                <div id="car-icon" class="car-move absolute top-[-4px] transform -translate-x-1/2 flex flex-col items-center" style="left: 0%">
+                <div id="car-icon" class="car-move absolute top-[-5px] transform -translate-x-1/2 flex flex-col items-center" style="left: 0%">
                     <div class="bg-slate-900 p-1.5 rounded-lg shadow-xl border border-slate-700">
                         <i data-lucide="car" class="w-4 h-4 text-white"></i>
                     </div>
                 </div>
             </div>
             <div class="flex justify-between mt-3 px-1">
-                <span class="text-[9px] font-bold text-slate-300 uppercase">Partida</span>
+                <span class="text-[9px] font-bold text-slate-300 uppercase italic">Abril 2026</span>
                 <span class="text-[9px] font-black text-blue-500 uppercase tracking-widest">Alvo R$ 15.000</span>
             </div>
         </div>
 
-        <!-- NIVELAMENTO -->
+        <!-- DEPÓSITOS EXTRAS -->
         <div class="bg-white rounded-[2.5rem] shadow-lg p-6 border border-white">
-            <h3 class="font-bold text-sm mb-4 flex items-center gap-2 uppercase tracking-tight">
+            <h3 class="font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
                 <i data-lucide="zap" class="text-amber-500 w-4 h-4"></i> Adicionar Extra (Alívio)
             </h3>
             <div class="flex gap-2">
                 <div class="relative flex-grow">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
-                    <input type="number" id="extra-input" placeholder="Valor" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 font-bold">
+                    <input type="number" id="extra-input" placeholder="Valor" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all">
                 </div>
-                <button onclick="addExtra()" class="bg-slate-900 text-white px-6 rounded-2xl font-bold active:scale-95 transition-all">
-                    OK
-                </button>
+                <button onclick="addExtra()" class="bg-slate-900 text-white px-6 rounded-2xl font-bold active:scale-95 transition-all">OK</button>
             </div>
         </div>
 
@@ -98,7 +107,7 @@
         <div class="bg-white rounded-[2.5rem] shadow-lg p-6 border border-white">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-                    <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i> Pagamentos
+                    <i data-lucide="calendar" class="text-blue-600 w-4 h-4"></i> Cronograma Mensal
                 </h3>
                 <span id="abatimento-info" class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded"></span>
             </div>
@@ -106,18 +115,17 @@
         </div>
 
         <!-- HISTÓRICO -->
-        <div class="bg-white rounded-[2.5rem] shadow-lg p-6 border border-white">
+        <div id="history-section" class="hidden bg-white rounded-[2.5rem] shadow-lg p-6 border border-white">
             <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Registro de Extras</h3>
             <div id="extra-history" class="space-y-3"></div>
         </div>
 
     </main>
 
-    <!-- FIREBASE SETUP -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, setDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBemTLWmLhBgx-8Rvm_COkQei1QGUAQdXE",
@@ -131,10 +139,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // CORREÇÃO: Usando 6 segmentos para o caminho do documento
-        const appId = "vaquinha-byd-diego-natan";
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'config_shared', 'vaquinha_doc');
+        const appId = "vaquinha-byd-shared";
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shared', 'vaquinha');
 
         const timeline = [];
         const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -148,20 +154,31 @@
 
         let cloudData = { paidMonths: [], extraDeposits: [], headerBg: null };
 
-        signInAnonymously(auth).then(() => {
-            onSnapshot(docRef, (snap) => {
-                if (snap.exists()) {
-                    cloudData = snap.data();
-                    render();
-                } else {
-                    setDoc(docRef, { paidMonths: [], extraDeposits: [], headerBg: null });
-                }
-                document.getElementById('loading').style.display = 'none';
-            }, (error) => {
-                console.error("Firestore Error:", error);
-                document.getElementById('loading').innerHTML = `<p class="text-red-500 font-bold p-4 text-center">Erro de Conexão: Verifique as regras do Firestore ou o console.</p>`;
-            });
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loader').classList.remove('hidden');
+                document.getElementById('login-form').classList.add('hidden');
+                onSnapshot(docRef, (snap) => {
+                    if (snap.exists()) {
+                        cloudData = snap.data();
+                        render();
+                    } else {
+                        setDoc(docRef, { paidMonths: [], extraDeposits: [], headerBg: null });
+                    }
+                    document.getElementById('auth-screen').style.display = 'none';
+                });
+            } else {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
+            }
         });
+
+        window.handleLogin = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { alert("Acesso negado. Verifique os seus dados."); }
+        };
 
         window.toggleMonth = async (id, currentVal) => {
             const exists = cloudData.paidMonths.find(p => p.id === id);
@@ -177,9 +194,7 @@
             const input = document.getElementById('extra-input');
             const amount = parseFloat(input.value);
             if (amount > 0) {
-                await updateDoc(docRef, {
-                    extraDeposits: arrayUnion({ amount, date: new Date().toLocaleDateString('pt-br'), ts: Date.now() })
-                });
+                await updateDoc(docRef, { extraDeposits: arrayUnion({ amount, date: new Date().toLocaleDateString('pt-pt'), ts: Date.now() }) });
                 input.value = '';
                 confetti({ particleCount: 100, spread: 60, colors: ['#fbbf24'] });
             }
@@ -194,9 +209,7 @@
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    await updateDoc(docRef, { headerBg: ev.target.result });
-                };
+                reader.onload = async (ev) => { await updateDoc(docRef, { headerBg: ev.target.result }); };
                 reader.readAsDataURL(file);
             }
         });
@@ -215,6 +228,7 @@
             let currentValues = timeline.map(m => m.base);
             let pool = poolPerPerson;
 
+            // Nivelamento Water Level (Apenas meses não pagos)
             while (pool > 0.1) {
                 let maxVal = 0, targets = [];
                 timeline.forEach((m, idx) => {
@@ -243,40 +257,39 @@
                 return `
                     <button onclick="toggleMonth('${m.id}', ${displayVal})" 
                         class="p-4 rounded-3xl border-2 transition-all flex flex-col items-center justify-center relative
-                        ${paidData ? 'border-blue-600 bg-blue-50' : isSmoothed ? 'smoothing-active border-blue-200 bg-blue-50/20' : 'border-slate-100 bg-white'}">
+                        ${paidData ? 'border-blue-600 bg-blue-50 shadow-inner' : isSmoothed ? 'smoothing-active border-blue-200 bg-blue-50/20' : 'border-slate-100 bg-white'}">
                         <span class="text-[9px] font-black uppercase mb-1 ${paidData ? 'text-blue-600' : 'text-slate-400'}">${m.label}</span>
                         <div class="text-center">
-                            ${isSmoothed ? `<span class="text-[8px] text-slate-300 line-through">R$ ${m.base}</span>` : ''}
+                            ${isSmoothed ? `<span class="text-[8px] text-slate-300 line-through tracking-tighter">R$ ${m.base}</span>` : ''}
                             <p class="text-xs font-black ${paidData ? 'text-blue-900' : 'text-slate-800'}">R$ ${Math.round(displayVal)}/cada</p>
-                            <p class="text-[8px] font-bold text-slate-400 tracking-tighter">(Par: ${Math.round(displayVal * 2)})</p>
+                            <p class="text-[8px] font-bold text-slate-400 tracking-tighter">(Par: R$ ${Math.round(displayVal * 2)})</p>
                         </div>
                         <div class="mt-2 text-slate-200"><i data-lucide="${paidData ? 'check-circle' : 'circle'}" class="w-4 h-4 ${paidData ? 'text-blue-600' : ''}"></i></div>
                     </button>
                 `;
             }).join('');
 
-            const totalPaid = cloudData.paidMonths.reduce((acc, curr) => acc + (curr.paidEach * 2), 0);
-            const grandTotal = totalExtras + totalPaid;
+            // CÁLCULO TOTAL: EXTRA + (SOMA DOS PAGOS REAIS)
+            const totalPaidReal = cloudData.paidMonths.reduce((acc, curr) => acc + (curr.paidEach * 2), 0);
+            const grandTotal = totalExtras + totalPaidReal;
             const percent = Math.min((grandTotal / 15000) * 100, 100);
 
-            document.getElementById('display-total').innerText = `R$ ${grandTotal.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
+            document.getElementById('display-total').innerText = `R$ ${grandTotal.toLocaleString('pt-pt', { minimumFractionDigits: 2 })}`;
             document.getElementById('display-percent').innerText = `${Math.floor(percent)}%`;
             document.getElementById('progress-fill').style.width = `${percent}%`;
             document.getElementById('car-icon').style.left = `${percent}%`;
 
             const hist = document.getElementById('extra-history');
-            hist.innerHTML = cloudData.extraDeposits.length === 0 
-                ? '<p class="text-center text-slate-300 py-4 text-xs italic">Nenhum extra</p>'
-                : cloudData.extraDeposits.slice().reverse().map(d => `
-                    <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div>
-                            <p class="font-black text-blue-700 text-sm">R$ ${d.amount.toLocaleString('pt-br')}</p>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase">${d.date}</p>
-                        </div>
-                        <button onclick="removeExtra(${d.ts})" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            document.getElementById('history-section').classList.toggle('hidden', cloudData.extraDeposits.length === 0);
+            hist.innerHTML = cloudData.extraDeposits.slice().reverse().map(d => `
+                <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div>
+                        <p class="font-black text-blue-700 text-sm">R$ ${d.amount.toLocaleString('pt-pt')}</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">${d.date}</p>
                     </div>
-                `).join('');
-
+                    <button onclick="removeExtra(${d.ts})" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            `).join('');
             lucide.createIcons();
         }
     </script>
